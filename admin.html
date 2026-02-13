@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - LinkTree</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tema Gelap (Default) */
+            --primary-color: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: #a5b4fc;
+            --secondary-color: #34d399;
+            --accent-color: #f472b6;
+            --text-dark: #f3f4f6;
+            --text-light: #9ca3af;
+            --bg-light: #1f2937;
+            --bg-white: #111827;
+            --bg-card: #1f2937;
+            --bg-body: #111827;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 2px 4px var(--shadow-color);
+            --shadow-md: 0 4px 12px var(--shadow-color);
+            --shadow-lg: 0 10px 25px var(--shadow-color);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Tema Terang */
+        [data-theme="light"] {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary-color: #10b981;
+            --accent-color: #ec4899;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --bg-card: #ffffff;
+            --bg-body: #f6f8ff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 4px var(--shadow-color);
+            --shadow-md: 0 4px 12px var(--shadow-color);
+            --shadow-lg: 0 10px 25px var(--shadow-color);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.5s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(52, 211, 153, 0.1) 0%, transparent 40%);
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            color: var(--text-dark);
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px) rotate(15deg);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .theme-toggle-btn i {
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+
+        .theme-toggle-btn .fa-sun {
+            color: #f59e0b;
+        }
+
+        .theme-toggle-btn .fa-moon {
+            color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn .fa-sun {
+            transform: scale(0);
+            opacity: 0;
+            position: absolute;
+        }
+
+        [data-theme="dark"] .theme-toggle-btn .fa-moon {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .fa-sun {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .fa-moon {
+            transform: scale(0);
+            opacity: 0;
+            position: absolute;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(16, 185, 129, 0.15));
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            height: fit-content;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 30px;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        
+        .main-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .form-hint {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-light);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-dark);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+        
+        /* PERBAIKAN DROPDOWN */
+        select {
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 45px;
+            background-color: var(--bg-light);
+        }
+        
+        select option {
+            background-color: var(--bg-card);
+            color: var(--text-dark);
+            padding: 12px;
+            font-size: 14px;
+        }
+        
+        select option:hover {
+            background-color: var(--primary-color) !important;
+        }
+        
+        select option:checked {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Styling untuk dropdown di form link sosial */
+        .social-platform {
+            background-color: var(--bg-light);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-dark);
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+            padding-right: 35px;
+        }
+        
+        .social-platform option {
+            background-color: var(--bg-card);
+            color: var(--text-dark);
+            padding: 10px;
+        }
+        
+        .social-platform option:hover {
+            background-color: var(--primary-color) !important;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: var(--bg-light);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        .links-list {
+            margin-top: 40px;
+        }
+        
+        .link-item {
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            animation: slideInLeft 0.5s ease forwards;
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes highlight {
+            0% { background-color: rgba(99, 102, 241, 0.2); }
+            100% { background-color: var(--bg-light); }
+        }
+
+        .link-item.updated {
+            animation: highlight 1s ease;
+        }
+        
+        .link-item-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .link-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .link-info {
+            flex: 1;
+        }
+        
+        .link-info h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        
+        .link-info p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .link-info .link-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            opacity: 0.8;
+        }
+        
+        .link-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+        
+        .edit-btn {
+            color: var(--primary-color);
+        }
+        
+        .delete-btn {
+            color: #ef4444;
+        }
+        
+        .edit-btn:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+        
+        .social-links-container {
+            margin-top: 20px;
+        }
+        
+        .social-link-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 16px;
+            align-items: center;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .social-link-item select, .social-link-item input {
+            flex: 1;
+        }
+        
+        .remove-social-btn {
+            background-color: var(--bg-light);
+            color: #ef4444;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .remove-social-btn:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+        
+        .add-social-btn {
+            margin-top: 10px;
+            background-color: var(--bg-light);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .add-social-btn:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .message {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            display: none;
+            animation: slideInDown 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .success {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+        
+        .error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        
+        .home-link {
+            display: inline-flex;
+            margin-top: 30px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .home-link:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        /* Real-time indicator */
+        .realtime-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            padding: 14px;
+            background-color: rgba(99, 102, 241, 0.1);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--primary-color);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .realtime-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        @keyframes pulse {
+            0% { 
+                opacity: 1; 
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+            }
+            70% { 
+                box-shadow: 0 0 0 8px rgba(52, 211, 153, 0);
+            }
+            100% { 
+                opacity: 1; 
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+            }
+        }
+
+        /* Activity log */
+        .activity-log {
+            margin-top: 25px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .activity-log::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .activity-log::-webkit-scrollbar-track {
+            background: var(--bg-light);
+            border-radius: 10px;
+        }
+
+        .activity-log::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .activity-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .activity-item:hover {
+            border-color: var(--border-color);
+        }
+
+        .activity-item i {
+            color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Connection status */
+        .connection-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-card);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .connection-badge.connected {
+            background: var(--bg-card);
+            color: var(--secondary-color);
+        }
+
+        .connection-badge.disconnected {
+            background: var(--bg-card);
+            color: #ef4444;
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Auto-save indicator */
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auto-save-indicator.show {
+            display: flex;
+        }
+
+        /* Live preview */
+        .live-preview-toggle {
+            margin-top: 20px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            font-weight: 500;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .live-preview-toggle:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .live-preview-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            display: none;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .live-preview-container.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
+            object-fit: cover;
+        }
+
+        .preview-info h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .preview-info p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .preview-social {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .preview-social i {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-card);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .preview-social i:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Form untuk custom icon */
+        .icon-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .icon-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+        
+        .icon-option:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .icon-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(99, 102, 241, 0.2);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .icon-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        
+        .icon-option span {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        .custom-icon-input {
+            margin-top: 20px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 30px 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-light);
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .connection-badge {
+                top: 10px;
+                left: 10px;
+                right: 80px;
+            }
+            
+            .icon-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .link-item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .link-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .link-item {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .link-actions {
+                align-self: flex-end;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .icon-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+            }
+
+            .theme-toggle-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 0;
+            }
+            
+            .sidebar, .main-content {
+                padding: 20px;
+            }
+            
+            .section-title {
+                font-size: 20px;
+            }
+            
+            .link-item {
+                padding: 18px;
+            }
+            
+            .icon-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .live-preview-toggle {
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-toggle-btn" id="themeToggle" aria-label="Ubah tema">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Connection Badge -->
+    <div class="connection-badge" id="connectionBadge">
+        <i class="fas fa-wifi"></i>
+        <span>Menyambungkan...</span>
+    </div>
+
+    <!-- Auto-save Indicator -->
+    <div class="auto-save-indicator" id="autoSaveIndicator">
+        <i class="fas fa-sync-alt fa-spin"></i>
+        <span>Menyimpan...</span>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div>
+                    <h1><i class="fas fa-cogs"></i> Admin Panel LinkTree</h1>
+                    <div class="header-subtitle">Kelola profil dan tautan Anda dengan mudah</div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active" id="profileTab"><i class="fas fa-user"></i> Profil</a>
+                <a href="#" id="linksTab"><i class="fas fa-link"></i> Link</a>
+                <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Lihat Halaman</a>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="sidebar">
+                <div class="section-title">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </div>
+                <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 20px;">
+                    Kelola profil dan tautan Anda dengan antarmuka yang intuitif. 
+                    <strong style="color: var(--primary-color);">Semua perubahan disinkronkan secara real-time.</strong>
+                </p>
+                
+                <div class="message" id="message"></div>
+                
+                <div class="realtime-indicator">
+                    <div class="realtime-dot"></div>
+                    <span>Koneksi Real-time Aktif</span>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLinks">0</div>
+                        <div class="stat-label">Total Tautan</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="lastUpdate">-</div>
+                        <div class="stat-label">Update Terakhir</div>
+                    </div>
+                </div>
+
+                <div class="activity-log" id="activityLog">
+                    <div class="activity-item">
+                        <i class="fas fa-rocket"></i>
+                        <span>Admin panel dimuat</span>
+                    </div>
+                </div>
+
+                <button class="live-preview-toggle" id="livePreviewToggle">
+                    <i class="fas fa-eye"></i>
+                    <span>Live Preview</span>
+                </button>
+
+                <div class="live-preview-container" id="livePreviewContainer">
+                    <div class="preview-header">
+                        <img id="previewAvatar" src="" alt="Avatar" class="preview-avatar" style="display: none;">
+                        <div class="preview-info">
+                            <h4 id="previewName">Nama Pengguna</h4>
+                            <p id="previewBio">Deskripsi singkat tentang profil</p>
+                        </div>
+                    </div>
+                    <div class="preview-social" id="previewSocial">
+                        <!-- Social icons akan ditambahkan di sini -->
+                    </div>
+                </div>
+                
+                <a href="index.html" class="home-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Buka Halaman Publik
+                </a>
+            </div>
+            
+            <div class="main-content">
+                <!-- Form Profil -->
+                <div id="profileSection">
+                    <div class="section-title">
+                        <i class="fas fa-user-edit"></i> Edit Profil
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name">Nama Lengkap</label>
+                        <input type="text" id="name" placeholder="Masukkan nama lengkap Anda">
+                        <span class="form-hint">Nama akan ditampilkan di halaman utama</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Bio / Deskripsi</label>
+                        <textarea id="bio" placeholder="Ceritakan sedikit tentang diri atau bisnis Anda"></textarea>
+                        <span class="form-hint">Maksimal 200 karakter</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="avatarUrl">URL Foto Profil</label>
+                        <input type="text" id="avatarUrl" placeholder="https://example.com/foto-profil.jpg">
+                        <span class="form-hint">Gunakan URL gambar dengan format JPG, PNG, atau GIF</span>
+                    </div>
+                    
+                    <div class="section-divider"></div>
+                    
+                    <div class="section-title">
+                        <i class="fas fa-share-alt"></i> Media Sosial
+                    </div>
+                    
+                    <div id="socialLinksContainer" class="social-links-container">
+                        <!-- Link sosial akan ditambahkan di sini -->
+                    </div>
+                    
+                    <button type="button" class="add-social-btn" id="addSocialLink">
+                        <i class="fas fa-plus"></i> Tambah Media Sosial
+                    </button>
+                    
+                    <div class="form-actions">
+                        <button class="btn" id="saveProfile">
+                            <i class="fas fa-save"></i> Simpan Profil
+                        </button>
+                        <button class="btn btn-secondary" id="resetProfile">
+                            <i class="fas fa-undo"></i> Reset Perubahan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Form Link -->
+                <div id="linksSection" style="display: none;">
+                    <div class="section-title">
+                        <i class="fas fa-plus-circle"></i> Tambah Tautan Baru
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkTitle">Judul Tautan</label>
+                        <input type="text" id="linkTitle" placeholder="Contoh: Portfolio Saya">
+                        <span class="form-hint">Judul yang menarik akan meningkatkan klik</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkUrl">URL Tautan</label>
+                        <input type="text" id="linkUrl" placeholder="https://example.com">
+                        <span class="form-hint">Pastikan URL valid dan dapat diakses</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkDescription">Deskripsi Tautan</label>
+                        <input type="text" id="linkDescription" placeholder="Deskripsi singkat tentang tautan ini">
+                        <span class="form-hint">Opsional, maksimal 100 karakter</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkType">Jenis Tautan</label>
+                        <select id="linkType">
+                            <option value="website">Website</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="twitter">Twitter</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="shop">Toko Online</option>
+                            <option value="portfolio">Portfolio</option>
+                            <option value="github">GitHub</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="discord">Discord</option>
+                            <option value="custom">Custom Icon</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Custom Icon Options -->
+                    <div class="form-group" id="customIconSection" style="display: none;">
+                        <label>Pilih Icon Kustom</label>
+                        <div class="icon-options" id="iconOptions">
+                            <div class="icon-option" data-icon="fas fa-globe">
+                                <i class="fas fa-globe"></i>
+                                <span>Website</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-link">
+                                <i class="fas fa-link"></i>
+                                <span>Link</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-shopping-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Toko</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-briefcase">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Portfolio</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-envelope">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-download">
+                                <i class="fas fa-download"></i>
+                                <span>Download</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-heart">
+                                <i class="fas fa-heart"></i>
+                                <span>Favorit</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-star">
+                                <i class="fas fa-star"></i>
+                                <span>Bintang</span>
+                            </div>
+                            <div class="icon-option" data-icon="fas fa-camera">
+                                <i class="fas fa-camera"></i>
+                                <span>Kamera</span>
+                            </div>
+                        </div>
+                        
+                        <div class="custom-icon-input">
+                            <label for="customIconClass">Atau masukkan class FontAwesome kustom:</label>
+                            <input type="text" id="customIconClass" placeholder="fas fa-rocket">
+                            <span class="form-hint">Contoh: fas fa-rocket, fab fa-twitter, etc.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkOrder">Urutan Tampilan</label>
+                        <input type="number" id="linkOrder" placeholder="1" min="1" value="1">
+                        <span class="form-hint">Angka yang lebih kecil akan muncul lebih awal</span>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn" id="addLink">
+                            <i class="fas fa-plus"></i> Tambah Tautan
+                        </button>
+                        <button class="btn btn-secondary" id="cancelEdit" style="display: none;">
+                            <i class="fas fa-times"></i> Batal Edit
+                        </button>
+                    </div>
+                    
+                    <!-- Daftar Link -->
+                    <div class="links-list" id="linksList">
+                        <div class="section-divider"></div>
+                        
+                        <div class="section-title">
+                            <i class="fas fa-list"></i> Daftar Tautan
+                        </div>
+                        
+                        <!-- Link akan ditampilkan di sini -->
+                        <div id="linksContainer">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <span>Memuat tautan...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK v12 (Modular) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            query, 
+            orderBy,
+            serverTimestamp,
+            setDoc,
+            onSnapshot,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDqTsvGxUk4MVwXHOWv5ZjVXXSjpL-tbc",
+            authDomain: "absensi-de7ff.firebaseapp.com",
+            projectId: "absensi-de7ff",
+            storageBucket: "absensi-de7ff.firebasestorage.app",
+            messagingSenderId: "566056187896",
+            appId: "1:566056187896:web:c99c1a0898e6c810a1480d",
+            measurementId: "G-G57RW6WDQL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Theme Management
+        class ThemeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.currentTheme = this.getSavedTheme() || 'dark';
+                this.init();
+            }
+
+            init() {
+                // Set initial theme
+                this.setTheme(this.currentTheme);
+                
+                // Add click event listener
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Add keyboard support
+                this.themeToggle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleTheme();
+                    }
+                });
+            }
+
+            getSavedTheme() {
+                return localStorage.getItem('linktree-admin-theme');
+            }
+
+            saveTheme(theme) {
+                localStorage.setItem('linktree-admin-theme', theme);
+            }
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                this.saveTheme(theme);
+                
+                // Update theme toggle button aria-label
+                const nextTheme = theme === 'light' ? 'gelap' : 'terang';
+                this.themeToggle.setAttribute('aria-label', `Ubah tema menjadi ${nextTheme}`);
+            }
+
+            toggleTheme() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+                
+                // Add activity log
+                addActivityLog(`Tema diubah ke ${newTheme === 'light' ? 'Terang' : 'Gelap'}`, 'palette');
+            }
+
+            getCurrentTheme() {
+                return this.currentTheme;
+            }
+        }
+
+        // Initialize Theme Manager
+        let themeManager;
+
+        // Variabel global
+        let editingLinkId = null;
+        let profileData = null;
+        let linksData = [];
+        let unsubscribeProfile = null;
+        let unsubscribeLinks = null;
+        let autoSaveTimer = null;
+        let isAutoSaving = false;
+        let selectedIcon = 'fas fa-globe';
+
+        // Fungsi untuk menampilkan pesan
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fungsi untuk menambahkan aktivitas ke log
+        function addActivityLog(text, icon = 'info-circle') {
+            const activityLog = document.getElementById('activityLog');
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${new Date().toLocaleTimeString()} - ${text}</span>
+            `;
+            
+            activityLog.prepend(activityItem);
+            
+            // Batasi jumlah item log
+            const items = activityLog.querySelectorAll('.activity-item');
+            if (items.length > 10) {
+                items[items.length - 1].remove();
+            }
+        }
+
+        // Fungsi untuk mengupdate status koneksi
+        function updateConnectionStatus(isConnected) {
+            const badge = document.getElementById('connectionBadge');
+            
+            if (isConnected) {
+                badge.className = 'connection-badge connected';
+                badge.innerHTML = `<i class="fas fa-wifi"></i><span>Terhubung Real-time</span>`;
+            } else {
+                badge.className = 'connection-badge disconnected';
+                badge.innerHTML = `<i class="fas fa-wifi-slash"></i><span>Mode Offline</span>`;
+            }
+        }
+
+        // Fungsi untuk menampilkan indikator auto-save
+        function showAutoSaveIndicator() {
+            const indicator = document.getElementById('autoSaveIndicator');
+            indicator.classList.add('show');
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Fungsi untuk mendapatkan icon berdasarkan tipe atau URL
+        function getIconForLink(link) {
+            // Jika ada custom icon, gunakan itu
+            if (link.customIcon) {
+                return link.customIcon;
+            }
+            
+            // Jika ada tipe, gunakan mapping tipe ke icon
+            if (link.type) {
+                const iconMap = {
+                    'website': 'fas fa-globe',
+                    'youtube': 'fab fa-youtube',
+                    'instagram': 'fab fa-instagram',
+                    'whatsapp': 'fab fa-whatsapp',
+                    'facebook': 'fab fa-facebook-f',
+                    'twitter': 'fab fa-twitter',
+                    'linkedin': 'fab fa-linkedin-in',
+                    'shop': 'fas fa-shopping-cart',
+                    'portfolio': 'fas fa-briefcase',
+                    'github': 'fab fa-github',
+                    'tiktok': 'fab fa-tiktok',
+                    'telegram': 'fab fa-telegram',
+                    'discord': 'fab fa-discord',
+                    'custom': selectedIcon || 'fas fa-link'
+                };
+                
+                return iconMap[link.type] || 'fas fa-link';
+            }
+            
+            // Coba deteksi dari URL
+            const url = link.url.toLowerCase();
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return 'fab fa-youtube';
+            } else if (url.includes('instagram.com')) {
+                return 'fab fa-instagram';
+            } else if (url.includes('facebook.com')) {
+                return 'fab fa-facebook-f';
+            } else if (url.includes('twitter.com')) {
+                return 'fab fa-twitter';
+            } else if (url.includes('linkedin.com')) {
+                return 'fab fa-linkedin-in';
+            } else if (url.includes('github.com')) {
+                return 'fab fa-github';
+            } else if (url.includes('tiktok.com')) {
+                return 'fab fa-tiktok';
+            } else if (url.includes('whatsapp.com')) {
+                return 'fab fa-whatsapp';
+            } else if (url.includes('telegram.me') || url.includes('t.me')) {
+                return 'fab fa-telegram';
+            } else if (url.includes('discord.com') || url.includes('discord.gg')) {
+                return 'fab fa-discord';
+            } else if (url.includes('shopee.co') || url.includes('tokopedia.com') || url.includes('bukalapak.com')) {
+                return 'fas fa-shopping-cart';
+            }
+            
+            // Default icon
+            return 'fas fa-link';
+        }
+
+        // Fungsi untuk memuat data profil dengan real-time
+        function setupRealtimeProfile() {
+            const profileRef = doc(db, 'profile', 'main');
+            
+            // Real-time listener untuk profil
+            unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    profileData = data;
+                    
+                    // Update form hanya jika tidak sedang diedit
+                    if (!isAutoSaving) {
+                        document.getElementById('name').value = data.name || '';
+                        document.getElementById('bio').value = data.bio || '';
+                        document.getElementById('avatarUrl').value = data.avatarUrl || '';
+                        
+                        loadSocialLinksForm(data.socialLinks || []);
+                        updateLivePreview(data);
+                    }
+                    
+                    // Update statistik
+                    document.getElementById('lastUpdate').textContent = 'Baru saja';
+                    
+                    // Tambah log aktivitas
+                    addActivityLog('Data profil diperbarui', 'sync-alt');
+                    
+                    // Tampilkan notifikasi real-time
+                    if (!window.profileInitialLoad) {
+                        showMessage("Profil diperbarui secara real-time", "success");
+                    } else {
+                        window.profileInitialLoad = true;
+                    }
+                }
+            }, (error) => {
+                console.error("Error real-time profile:", error);
+                showMessage("Gagal menyinkronkan data profil", "error");
+                updateConnectionStatus(false);
+            });
+        }
+
+        // Fungsi untuk update live preview
+        function updateLivePreview(data) {
+            const previewName = document.getElementById('previewName');
+            const previewBio = document.getElementById('previewBio');
+            const previewAvatar = document.getElementById('previewAvatar');
+            const previewSocial = document.getElementById('previewSocial');
+            
+            previewName.textContent = data.name || 'Nama Pengguna';
+            previewBio.textContent = data.bio || 'Deskripsi singkat tentang profil';
+            
+            if (data.avatarUrl) {
+                previewAvatar.src = data.avatarUrl;
+                previewAvatar.style.display = 'block';
+            } else {
+                previewAvatar.style.display = 'none';
+            }
+            
+            // Update social preview
+            previewSocial.innerHTML = '';
+            const socialIcons = {
+                'instagram': 'fab fa-instagram',
+                'facebook': 'fab fa-facebook-f',
+                'twitter': 'fab fa-twitter',
+                'linkedin': 'fab fa-linkedin-in',
+                'youtube': 'fab fa-youtube',
+                'github': 'fab fa-github',
+                'tiktok': 'fab fa-tiktok',
+                'whatsapp': 'fab fa-whatsapp'
+            };
+            
+            (data.socialLinks || []).forEach(social => {
+                if (social.url && social.platform) {
+                    const icon = document.createElement('i');
+                    icon.className = socialIcons[social.platform] || 'fas fa-link';
+                    icon.title = social.platform;
+                    icon.onclick = () => window.open(social.url, '_blank');
+                    previewSocial.appendChild(icon);
+                }
+            });
+        }
+
+        // Fungsi untuk memuat form link sosial
+        function loadSocialLinksForm(socialLinks) {
+            const container = document.getElementById('socialLinksContainer');
+            container.innerHTML = '';
+            
+            if (socialLinks.length === 0) {
+                socialLinks = [{platform: 'instagram', url: ''}];
+            }
+            
+            socialLinks.forEach((social, index) => {
+                const div = document.createElement('div');
+                div.className = 'social-link-item';
+                div.innerHTML = `
+                    <select class="social-platform" data-index="${index}">
+                        <option value="instagram" ${social.platform === 'instagram' ? 'selected' : ''}>Instagram</option>
+                        <option value="facebook" ${social.platform === 'facebook' ? 'selected' : ''}>Facebook</option>
+                        <option value="twitter" ${social.platform === 'twitter' ? 'selected' : ''}>Twitter</option>
+                        <option value="linkedin" ${social.platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                        <option value="youtube" ${social.platform === 'youtube' ? 'selected' : ''}>YouTube</option>
+                        <option value="github" ${social.platform === 'github' ? 'selected' : ''}>GitHub</option>
+                        <option value="tiktok" ${social.platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
+                        <option value="whatsapp" ${social.platform === 'whatsapp' ? 'selected' : ''}>WhatsApp</option>
+                    </select>
+                    <input type="text" class="social-url" data-index="${index}" placeholder="https://example.com" value="${social.url || ''}">
+                    <button type="button" class="remove-social-btn" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            
+            // Tambahkan event listener untuk tombol hapus
+            document.querySelectorAll('.remove-social-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeSocialLink(index);
+                });
+            });
+        }
+        
+        // Fungsi untuk menghapus link sosial dari form
+        function removeSocialLink(index) {
+            const container = document.getElementById('socialLinksContainer');
+            const items = container.querySelectorAll('.social-link-item');
+            
+            if (items.length <= 1) {
+                showMessage("Minimal harus ada satu link sosial", "error");
+                return;
+            }
+            
+            items[index].remove();
+            
+            // Perbarui index untuk elemen yang tersisa
+            const remainingItems = container.querySelectorAll('.social-link-item');
+            remainingItems.forEach((item, newIndex) => {
+                const select = item.querySelector('.social-platform');
+                const input = item.querySelector('.social-url');
+                const btn = item.querySelector('.remove-social-btn');
+                
+                select.setAttribute('data-index', newIndex);
+                input.setAttribute('data-index', newIndex);
+                btn.setAttribute('data-index', newIndex);
+            });
+        }
+        
+        // Fungsi untuk menyimpan profil dengan auto-save
+        async function saveProfile() {
+            try {
+                isAutoSaving = true;
+                showAutoSaveIndicator();
+                
+                // Kumpulkan data link sosial
+                const socialLinks = [];
+                document.querySelectorAll('.social-link-item').forEach(item => {
+                    const platform = item.querySelector('.social-platform').value;
+                    const url = item.querySelector('.social-url').value.trim();
+                    
+                    if (url) {
+                        socialLinks.push({platform, url});
+                    }
+                });
+                
+                const profileData = {
+                    name: document.getElementById('name').value.trim(),
+                    bio: document.getElementById('bio').value.trim(),
+                    avatarUrl: document.getElementById('avatarUrl').value.trim(),
+                    socialLinks,
+                    updatedAt: serverTimestamp()
+                };
+                
+                const profileRef = doc(db, 'profile', 'main');
+                await setDoc(profileRef, profileData, { merge: true });
+                
+                addActivityLog('Profil disimpan', 'save');
+                showMessage("Profil berhasil disimpan!", "success");
+                
+                isAutoSaving = false;
+            } catch (error) {
+                console.error("Error saving profile:", error);
+                showMessage("Gagal menyimpan profil", "error");
+                isAutoSaving = false;
+            }
+        }
+
+        // Fungsi untuk setup real-time links
+        function setupRealtimeLinks() {
+            const linksRef = collection(db, 'links');
+            const q = query(linksRef, orderBy('order', 'asc'));
+            
+            // Real-time listener untuk link
+            unsubscribeLinks = onSnapshot(q, (querySnapshot) => {
+                const container = document.getElementById('linksContainer');
+                linksData = [];
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-light);">Belum ada tautan yang ditambahkan.</div>';
+                    document.getElementById('totalLinks').textContent = '0';
+                    return;
+                }
+                
+                let html = '';
+                let index = 0;
+                querySnapshot.forEach((doc) => {
+                    const link = doc.data();
+                    linksData.push({ id: doc.id, ...link });
+                    
+                    // Dapatkan icon untuk link ini
+                    const iconClass = getIconForLink(link);
+                    
+                    html += `
+                        <div class="link-item" data-id="${doc.id}" style="animation-delay: ${index * 0.05}s">
+                            <div class="link-item-header">
+                                <div class="link-icon">
+                                    <i class="${iconClass}"></i>
+                                </div>
+                                <div class="link-info">
+                                    <h3>${link.title}</h3>
+                                    <p>${link.url}</p>
+                                    <p class="link-meta">
+                                        Tipe: ${link.type} ${link.customIcon ? ' (Custom Icon)' : ''} | Urutan: ${link.order}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="link-actions">
+                                <div class="action-btn edit-btn" onclick="window.editLink('${doc.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-btn delete-btn" onclick="window.deleteLink('${doc.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    index++;
+                });
+                
+                container.innerHTML = html;
+                
+                // Update statistik
+                document.getElementById('totalLinks').textContent = querySnapshot.size;
+                
+                // Tambah log aktivitas
+                addActivityLog('Daftar tautan diperbarui', 'link');
+                
+                // Tampilkan notifikasi real-time
+                if (!window.linksInitialLoad) {
+                    showMessage("Daftar tautan diperbarui secara real-time", "success");
+                    
+                    // Highlight item yang baru saja diperbarui
+                    const linkItems = document.querySelectorAll('.link-item');
+                    if (linkItems.length > 0) {
+                        linkItems[linkItems.length - 1].classList.add('updated');
+                        setTimeout(() => {
+                            linkItems[linkItems.length - 1].classList.remove('updated');
+                        }, 1000);
+                    }
+                } else {
+                    window.linksInitialLoad = true;
+                }
+                
+            }, (error) => {
+                console.error("Error real-time links:", error);
+                showMessage("Gagal menyinkronkan data tautan", "error");
+                updateConnectionStatus(false);
+            });
+        }
+        
+        // Fungsi untuk menambah link
+        async function addLink() {
+            try {
+                const title = document.getElementById('linkTitle').value.trim();
+                const url = document.getElementById('linkUrl').value.trim();
+                const description = document.getElementById('linkDescription').value.trim();
+                const type = document.getElementById('linkType').value;
+                const order = parseInt(document.getElementById('linkOrder').value) || 1;
+                
+                if (!title || !url) {
+                    showMessage("Judul dan URL harus diisi", "error");
+                    return;
+                }
+                
+                const linkData = {
+                    title,
+                    url,
+                    description,
+                    type,
+                    order,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+                
+                // Jika tipe custom, tambahkan customIcon
+                if (type === 'custom') {
+                    const customIconClass = document.getElementById('customIconClass').value.trim();
+                    if (customIconClass) {
+                        linkData.customIcon = customIconClass;
+                    } else {
+                        linkData.customIcon = selectedIcon;
+                    }
+                }
+                
+                if (editingLinkId) {
+                    // Update link yang ada
+                    const linkRef = doc(db, 'links', editingLinkId);
+                    await updateDoc(linkRef, linkData);
+                    addActivityLog(`Tautan "${title}" diperbarui`, 'edit');
+                    showMessage("Tautan berhasil diperbarui!", "success");
+                    editingLinkId = null;
+                    document.getElementById('addLink').innerHTML = '<i class="fas fa-plus"></i> Tambah Tautan';
+                    document.getElementById('cancelEdit').style.display = 'none';
+                    document.getElementById('customIconSection').style.display = 'none';
+                } else {
+                    // Tambah link baru
+                    await addDoc(collection(db, 'links'), linkData);
+                    addActivityLog(`Tautan baru "${title}" ditambahkan`, 'plus');
+                    showMessage("Tautan berhasil ditambahkan!", "success");
+                }
+                
+                // Reset form
+                document.getElementById('linkTitle').value = '';
+                document.getElementById('linkUrl').value = '';
+                document.getElementById('linkDescription').value = '';
+                document.getElementById('linkOrder').value = '1';
+                document.getElementById('linkType').value = 'website';
+                document.getElementById('customIconClass').value = '';
+                
+                // Reset icon selection
+                document.querySelectorAll('.icon-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                document.querySelector('.icon-option[data-icon="fas fa-globe"]').classList.add('selected');
+                selectedIcon = 'fas fa-globe';
+                
+            } catch (error) {
+                console.error("Error adding link:", error);
+                showMessage("Gagal menambahkan tautan", "error");
+            }
+        }
+        
+        // Fungsi untuk mengedit link
+        async function editLink(id) {
+            try {
+                const docRef = doc(db, 'links', id);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const link = docSnap.data();
+                    
+                    document.getElementById('linkTitle').value = link.title;
+                    document.getElementById('linkUrl').value = link.url;
+                    document.getElementById('linkDescription').value = link.description || '';
+                    document.getElementById('linkType').value = link.type || 'website';
+                    document.getElementById('linkOrder').value = link.order || 1;
+                    
+                    // Jika ada customIcon, tampilkan section custom icon
+                    if (link.type === 'custom' || link.customIcon) {
+                        document.getElementById('customIconSection').style.display = 'block';
+                        if (link.customIcon) {
+                            document.getElementById('customIconClass').value = link.customIcon;
+                        }
+                    }
+                    
+                    editingLinkId = id;
+                    document.getElementById('addLink').innerHTML = '<i class="fas fa-save"></i> Update Tautan';
+                    document.getElementById('cancelEdit').style.display = 'inline-flex';
+                    
+                    // Scroll ke form
+                    document.getElementById('linkTitle').focus();
+                    
+                    addActivityLog(`Mengedit tautan "${link.title}"`, 'edit');
+                }
+            } catch (error) {
+                console.error("Error editing link:", error);
+                showMessage("Gagal memuat data tautan", "error");
+            }
+        }
+        
+        // Fungsi untuk menghapus link
+        async function deleteLink(id) {
+            const link = linksData.find(l => l.id === id);
+            if (link && confirm(`Apakah Anda yakin ingin menghapus tautan "${link.title}"?`)) {
+                try {
+                    await deleteDoc(doc(db, 'links', id));
+                    addActivityLog(`Tautan "${link.title}" dihapus`, 'trash');
+                    showMessage("Tautan berhasil dihapus!", "success");
+                } catch (error) {
+                    console.error("Error deleting link:", error);
+                    showMessage("Gagal menghapus tautan", "error");
+                }
+            }
+        }
+
+        // Fungsi untuk membatalkan edit
+        function cancelEdit() {
+            editingLinkId = null;
+            document.getElementById('addLink').innerHTML = '<i class="fas fa-plus"></i> Tambah Tautan';
+            document.getElementById('cancelEdit').style.display = 'none';
+            document.getElementById('customIconSection').style.display = 'none';
+            
+            // Reset form
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkDescription').value = '';
+            document.getElementById('linkOrder').value = '1';
+            document.getElementById('linkType').value = 'website';
+            document.getElementById('customIconClass').value = '';
+            
+            // Reset icon selection
+            document.querySelectorAll('.icon-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector('.icon-option[data-icon="fas fa-globe"]').classList.add('selected');
+            selectedIcon = 'fas fa-globe';
+            
+            addActivityLog('Membatalkan edit tautan', 'times');
+        }
+
+        // Fungsi untuk reset form profil
+        function resetProfileForm() {
+            if (confirm("Apakah Anda yakin ingin mereset form profil ke nilai terakhir yang disimpan?")) {
+                if (profileData) {
+                    document.getElementById('name').value = profileData.name || '';
+                    document.getElementById('bio').value = profileData.bio || '';
+                    document.getElementById('avatarUrl').value = profileData.avatarUrl || '';
+                    loadSocialLinksForm(profileData.socialLinks || []);
+                    
+                    addActivityLog('Form profil direset', 'undo');
+                    showMessage("Form profil berhasil direset", "success");
+                }
+            }
+        }
+        
+        // Ekspor fungsi ke window object agar bisa diakses dari onclick
+        window.editLink = editLink;
+        window.deleteLink = deleteLink;
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Theme Manager
+            themeManager = new ThemeManager();
+            
+            // Setup real-time listeners
+            setupRealtimeProfile();
+            setupRealtimeLinks();
+            
+            // Update connection status
+            updateConnectionStatus(true);
+            
+            // Setup auto-save untuk profil
+            const profileInputs = ['#name', '#bio', '#avatarUrl'];
+            profileInputs.forEach(selector => {
+                const input = document.querySelector(selector);
+                if (input) {
+                    input.addEventListener('input', () => {
+                        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+                        autoSaveTimer = setTimeout(() => {
+                            saveProfile();
+                        }, 2000);
+                    });
+                }
+            });
+            
+            // Tab navigation
+            document.getElementById('profileTab').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('profileSection').style.display = 'block';
+                document.getElementById('linksSection').style.display = 'none';
+                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                addActivityLog('Beralih ke tab Profil', 'user');
+            });
+            
+            document.getElementById('linksTab').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('profileSection').style.display = 'none';
+                document.getElementById('linksSection').style.display = 'block';
+                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                addActivityLog('Beralih ke tab Tautan', 'link');
+            });
+            
+            // Tombol tambah link sosial
+            document.getElementById('addSocialLink').addEventListener('click', () => {
+                const container = document.getElementById('socialLinksContainer');
+                const index = container.querySelectorAll('.social-link-item').length;
+                
+                const div = document.createElement('div');
+                div.className = 'social-link-item';
+                div.innerHTML = `
+                    <select class="social-platform" data-index="${index}">
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="github">GitHub</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="whatsapp">WhatsApp</option>
+                    </select>
+                    <input type="text" class="social-url" data-index="${index}" placeholder="https://example.com">
+                    <button type="button" class="remove-social-btn" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+                
+                // Tambahkan event listener untuk tombol hapus
+                div.querySelector('.remove-social-btn').addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeSocialLink(index);
+                });
+                
+                addActivityLog('Menambah field media sosial', 'plus');
+            });
+            
+            // Tombol simpan profil
+            document.getElementById('saveProfile').addEventListener('click', saveProfile);
+            
+            // Tombol reset profil
+            document.getElementById('resetProfile').addEventListener('click', resetProfileForm);
+            
+            // Tombol tambah link
+            document.getElementById('addLink').addEventListener('click', addLink);
+            
+            // Tombol cancel edit
+            document.getElementById('cancelEdit').addEventListener('click', cancelEdit);
+            
+            // Live preview toggle
+            document.getElementById('livePreviewToggle').addEventListener('click', () => {
+                const container = document.getElementById('livePreviewContainer');
+                const toggle = document.getElementById('livePreviewToggle');
+                
+                if (container.classList.contains('show')) {
+                    container.classList.remove('show');
+                    toggle.innerHTML = '<i class="fas fa-eye"></i><span>Live Preview</span>';
+                } else {
+                    container.classList.add('show');
+                    toggle.innerHTML = '<i class="fas fa-eye-slash"></i><span>Sembunyikan Preview</span>';
+                }
+            });
+            
+            // Deteksi perubahan tipe link untuk custom icon
+            document.getElementById('linkType').addEventListener('change', function() {
+                const customIconSection = document.getElementById('customIconSection');
+                if (this.value === 'custom') {
+                    customIconSection.style.display = 'block';
+                } else {
+                    customIconSection.style.display = 'none';
+                }
+            });
+            
+            // Icon selection
+            document.querySelectorAll('.icon-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.icon-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Set selected icon
+                    selectedIcon = this.getAttribute('data-icon');
+                    
+                    // Update custom icon input
+                    document.getElementById('customIconClass').value = selectedIcon;
+                });
+            });
+            
+            // Set default selected icon
+            document.querySelector('.icon-option[data-icon="fas fa-globe"]').classList.add('selected');
+            
+            // Deteksi perubahan koneksi jaringan
+            window.addEventListener('online', () => {
+                updateConnectionStatus(true);
+                addActivityLog('Koneksi internet pulih', 'wifi');
+                showMessage("Koneksi internet terhubung kembali", "success");
+            });
+            
+            window.addEventListener('offline', () => {
+                updateConnectionStatus(false);
+                addActivityLog('Koneksi internet terputus', 'wifi-slash');
+                showMessage("Koneksi internet terputus", "error");
+            });
+
+            // System theme detection
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Listen for system theme changes
+            prefersDarkScheme.addEventListener('change', (e) => {
+                if (!localStorage.getItem('linktree-admin-theme')) { // Only auto-switch if user hasn't set preference
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    themeManager.setTheme(newTheme);
+                }
+            });
+            
+            // Cleanup listeners saat halaman ditutup
+            window.addEventListener('beforeunload', () => {
+                if (unsubscribeProfile) unsubscribeProfile();
+                if (unsubscribeLinks) unsubscribeLinks();
+            });
+            
+            // Log aktivitas awal
+            addActivityLog('Admin panel dimuat', 'rocket');
+        });
+    </script>
+</body>
+</html>

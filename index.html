@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTree Saya</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tema Terang (Default) */
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary-color: #10b981;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --bg-card: #ffffff;
+            --bg-body: #f6f8ff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 2px 4px var(--shadow-color);
+            --shadow-md: 0 4px 12px var(--shadow-color);
+            --shadow-lg: 0 10px 25px var(--shadow-color);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Tema Gelap */
+        [data-theme="dark"] {
+            --primary-color: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: #a5b4fc;
+            --secondary-color: #34d399;
+            --text-dark: #f3f4f6;
+            --text-light: #9ca3af;
+            --bg-light: #1f2937;
+            --bg-white: #111827;
+            --bg-card: #1f2937;
+            --bg-body: #111827;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 2px 4px var(--shadow-color);
+            --shadow-md: 0 4px 12px var(--shadow-color);
+            --shadow-lg: 0 10px 25px var(--shadow-color);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            transition: opacity 0.5s ease;
+        }
+
+        [data-theme="dark"] body::before {
+            opacity: 0.3;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 20px auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-decoration {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            z-index: -1;
+            transition: opacity 0.5s ease;
+        }
+
+        [data-theme="dark"] .header-decoration {
+            opacity: 0.25;
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            color: var(--text-dark);
+            font-size: 20px;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px) rotate(15deg);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .theme-toggle-btn i {
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+
+        .theme-toggle-btn .fa-sun {
+            color: #f59e0b;
+        }
+
+        .theme-toggle-btn .fa-moon {
+            color: #6366f1;
+        }
+
+        [data-theme="dark"] .theme-toggle-btn .fa-sun {
+            transform: scale(0);
+            opacity: 0;
+            position: absolute;
+        }
+
+        [data-theme="dark"] .theme-toggle-btn .fa-moon {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .fa-sun {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        [data-theme="light"] .theme-toggle-btn .fa-moon {
+            transform: scale(0);
+            opacity: 0;
+            position: absolute;
+        }
+        
+        .profile-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 40px 30px 30px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 25px;
+        }
+        
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-card);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .avatar-glow {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            z-index: 1;
+            opacity: 0.5;
+            filter: blur(8px);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { opacity: 0.3; transform: scale(0.95); }
+            to { opacity: 0.6; transform: scale(1.05); }
+        }
+        
+        .avatar:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        .name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .bio {
+            font-size: 16px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            padding: 0 15px;
+        }
+        
+        .links-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 30px 25px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .link-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 18px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .link-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .link-item:nth-child(1) { animation-delay: 0.1s; }
+        .link-item:nth-child(2) { animation-delay: 0.2s; }
+        .link-item:nth-child(3) { animation-delay: 0.3s; }
+        .link-item:nth-child(4) { animation-delay: 0.4s; }
+        .link-item:nth-child(5) { animation-delay: 0.5s; }
+        
+        .link-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            background: var(--bg-white);
+            border-color: var(--primary-color);
+        }
+        
+        .link-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 18px;
+            font-size: 22px;
+            color: white;
+            flex-shrink: 0;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .link-item:hover .link-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .link-content {
+            flex-grow: 1;
+            text-align: left;
+        }
+        
+        .link-title {
+            font-weight: 600;
+            font-size: 17px;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+        
+        .link-description {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .link-arrow {
+            margin-left: 10px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: var(--transition);
+            color: var(--primary-color);
+        }
+
+        .link-item:hover .link-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .footer {
+            text-align: center;
+            color: var(--text-light);
+            margin-top: 30px;
+            font-size: 14px;
+            padding: 20px;
+            opacity: 0.8;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .social-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .social-icon:hover::before {
+            opacity: 1;
+        }
+        
+        .social-icon:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Real-time notification */
+        .realtime-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--bg-white), #f8fafc);
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), fadeOut 0.4s ease 2.6s forwards;
+            max-width: 320px;
+            border-left: 4px solid var(--primary-color);
+            transform-origin: right center;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%) scale(0.8);
+            }
+        }
+
+        .realtime-notification i {
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .realtime-notification span {
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Connection status */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(31, 41, 55, 0.9);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: var(--transition);
+        }
+
+        .connection-status.connected {
+            background: rgba(16, 185, 129, 0.9);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(239, 68, 68, 0.9);
+        }
+
+        .online-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            margin-left: 8px;
+            position: relative;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Loading animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .loading span {
+            color: var(--text-light);
+            font-size: 15px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-card, .links-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .link-item {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Theme Switch Animation */
+        .theme-switch-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .theme-switch-animation.active {
+            opacity: 0.1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+            }
+
+            .theme-toggle-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            
+            .profile-card, .links-container {
+                padding: 25px 20px;
+            }
+            
+            .avatar-container {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .name {
+                font-size: 24px;
+            }
+            
+            .link-item {
+                padding: 18px 15px;
+            }
+            
+            .link-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+                margin-right: 15px;
+            }
+            
+            .link-title {
+                font-size: 16px;
+            }
+            
+            .link-description {
+                font-size: 13px;
+            }
+
+            .realtime-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .connection-status {
+                bottom: 10px;
+                left: 10px;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle">
+        <button class="theme-toggle-btn" id="themeToggle" aria-label="Ubah tema">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Theme Switch Animation Overlay -->
+    <div class="theme-switch-animation" id="themeAnimation"></div>
+    
+    <div class="header-decoration"></div>
+    
+    <div class="container">
+        <div class="profile-card" id="profileCard">
+            <div class="avatar-container">
+                <div class="avatar-glow"></div>
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Profile Picture" class="avatar" id="profileAvatar">
+            </div>
+            <h1 class="name" id="profileName">Nama Pengguna <span class="online-status"></span></h1>
+            <p class="bio" id="profileBio">Deskripsi singkat tentang diri atau bisnis Anda. Semua link penting ada di bawah ini!</p>
+            
+            <div class="social-icons" id="socialIcons">
+                <!-- Social icons akan ditambahkan via JavaScript -->
+            </div>
+        </div>
+        
+        <div class="links-container" id="linksContainer">
+            <!-- Link items akan ditambahkan via JavaScript -->
+            <div class="loading">
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <span>Memuat link...</span>
+            </div>
+        </div>
+
+        <!-- Optional CTA Button -->
+        <a href="#" class="cta-button" id="ctaButton" style="display: none;">
+            <i class="fas fa-bolt" style="margin-right: 8px;"></i>
+            Hubungi Saya
+        </a>
+        
+        <div class="footer">
+            <p>© 2026 Created with ❤️ by Husni</p>
+        </div>
+    </div>
+
+    <!-- Real-time notification container -->
+    <div id="realtimeNotificationContainer"></div>
+
+    <!-- Connection status -->
+    <div class="connection-status" id="connectionStatus">
+        <i class="fas fa-wifi"></i>
+        <span>Menyambungkan...</span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            query, 
+            orderBy,
+            onSnapshot,
+            enableNetwork,
+            disableNetwork
+        } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDqTsvGxUk4MVwXHOWv5ZjVXXSjpL-tbc",
+            authDomain: "absensi-de7ff.firebaseapp.com",
+            projectId: "absensi-de7ff",
+            storageBucket: "absensi-de7ff.firebasestorage.app",
+            messagingSenderId: "566056187896",
+            appId: "1:566056187896:web:c99c1a0898e6c810a1480d",
+            measurementId: "G-G57RW6WDQL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Theme Management
+        class ThemeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.themeAnimation = document.getElementById('themeAnimation');
+                this.currentTheme = this.getSavedTheme() || 'light';
+                this.init();
+            }
+
+            init() {
+                // Set initial theme
+                this.setTheme(this.currentTheme);
+                
+                // Add click event listener
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Add keyboard support
+                this.themeToggle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleTheme();
+                    }
+                });
+            }
+
+            getSavedTheme() {
+                return localStorage.getItem('linktree-theme');
+            }
+
+            saveTheme(theme) {
+                localStorage.setItem('linktree-theme', theme);
+            }
+
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                this.saveTheme(theme);
+                
+                // Update theme toggle button aria-label
+                const nextTheme = theme === 'light' ? 'gelap' : 'terang';
+                this.themeToggle.setAttribute('aria-label', `Ubah tema menjadi ${nextTheme}`);
+                
+                // Show theme change notification
+                const themeName = theme === 'light' ? 'Terang' : 'Gelap';
+                showRealtimeNotification(`Tema diubah ke ${themeName}`, 'success');
+            }
+
+            toggleTheme() {
+                // Play animation
+                this.themeAnimation.classList.add('active');
+                setTimeout(() => {
+                    this.themeAnimation.classList.remove('active');
+                }, 300);
+                
+                // Switch theme after a short delay
+                setTimeout(() => {
+                    const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                    this.setTheme(newTheme);
+                }, 150);
+            }
+
+            getCurrentTheme() {
+                return this.currentTheme;
+            }
+        }
+
+        // Initialize Theme Manager
+        let themeManager;
+
+        // Variabel untuk melacak perubahan
+        let lastProfileData = null;
+        let lastLinksData = null;
+        let profileInitialLoad = true;
+        let linksInitialLoad = true;
+
+        // Fungsi untuk menampilkan notifikasi real-time
+        function showRealtimeNotification(message, type = 'info') {
+            const container = document.getElementById('realtimeNotificationContainer');
+            const notification = document.createElement('div');
+            notification.className = 'realtime-notification';
+            
+            let icon = 'fas fa-sync-alt';
+            if (type === 'success') icon = 'fas fa-check-circle';
+            if (type === 'error') icon = 'fas fa-exclamation-circle';
+            
+            notification.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Hapus notifikasi setelah animasi selesai
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Fungsi untuk mengupdate status koneksi
+        function updateConnectionStatus(isConnected) {
+            const statusElement = document.getElementById('connectionStatus');
+            
+            if (isConnected) {
+                statusElement.className = 'connection-status connected';
+                statusElement.innerHTML = `<i class="fas fa-wifi"></i><span>Terhubung Real-Time</span>`;
+            } else {
+                statusElement.className = 'connection-status disconnected';
+                statusElement.innerHTML = `<i class="fas fa-wifi-slash"></i><span>Mode Offline</span>`;
+            }
+        }
+
+        // Deteksi perubahan koneksi
+        window.addEventListener('online', () => {
+            updateConnectionStatus(true);
+            showRealtimeNotification('Koneksi internet pulih', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            updateConnectionStatus(false);
+            showRealtimeNotification('Koneksi internet terputus', 'error');
+        });
+
+        // Fungsi untuk mendapatkan icon berdasarkan tipe atau URL
+        function getIconForLink(link) {
+            // Jika ada custom icon, gunakan itu
+            if (link.customIcon) {
+                return link.customIcon;
+            }
+            
+            // Jika ada tipe, gunakan mapping tipe ke icon
+            if (link.type) {
+                const iconMap = {
+                    'website': 'fas fa-globe',
+                    'youtube': 'fab fa-youtube',
+                    'instagram': 'fab fa-instagram',
+                    'whatsapp': 'fab fa-whatsapp',
+                    'facebook': 'fab fa-facebook-f',
+                    'twitter': 'fab fa-twitter',
+                    'linkedin': 'fab fa-linkedin-in',
+                    'shop': 'fas fa-shopping-cart',
+                    'portfolio': 'fas fa-briefcase',
+                    'github': 'fab fa-github',
+                    'tiktok': 'fab fa-tiktok',
+                    'telegram': 'fab fa-telegram',
+                    'discord': 'fab fa-discord',
+                    'custom': 'fas fa-link'
+                };
+                
+                return iconMap[link.type] || 'fas fa-link';
+            }
+            
+            // Coba deteksi dari URL
+            const url = link.url.toLowerCase();
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return 'fab fa-youtube';
+            } else if (url.includes('instagram.com')) {
+                return 'fab fa-instagram';
+            } else if (url.includes('facebook.com')) {
+                return 'fab fa-facebook-f';
+            } else if (url.includes('twitter.com')) {
+                return 'fab fa-twitter';
+            } else if (url.includes('linkedin.com')) {
+                return 'fab fa-linkedin-in';
+            } else if (url.includes('github.com')) {
+                return 'fab fa-github';
+            } else if (url.includes('tiktok.com')) {
+                return 'fab fa-tiktok';
+            } else if (url.includes('whatsapp.com')) {
+                return 'fab fa-whatsapp';
+            } else if (url.includes('telegram.me') || url.includes('t.me')) {
+                return 'fab fa-telegram';
+            } else if (url.includes('discord.com') || url.includes('discord.gg')) {
+                return 'fab fa-discord';
+            } else if (url.includes('shopee.co') || url.includes('tokopedia.com') || url.includes('bukalapak.com')) {
+                return 'fas fa-shopping-cart';
+            }
+            
+            // Default icon
+            return 'fas fa-link';
+        }
+
+        // Fungsi untuk mendapatkan warna icon berdasarkan tipe
+        function getIconColorForLink(link) {
+            // Warna default untuk custom icon
+            if (link.customIcon) {
+                return themeManager.getCurrentTheme() === 'dark' ? '#818cf8' : '#6366f1';
+            }
+            
+            // Jika ada tipe, gunakan mapping tipe ke warna
+            if (link.type) {
+                const colorMap = {
+                    'website': themeManager.getCurrentTheme() === 'dark' ? '#818cf8' : '#6366f1',
+                    'youtube': '#FF0000',
+                    'instagram': '#E4405F',
+                    'whatsapp': '#25D366',
+                    'facebook': '#1877F2',
+                    'twitter': '#1DA1F2',
+                    'linkedin': '#0A66C2',
+                    'shop': '#FF6B35',
+                    'portfolio': themeManager.getCurrentTheme() === 'dark' ? '#34d399' : '#10b981',
+                    'github': '#333333',
+                    'tiktok': '#000000',
+                    'telegram': '#26A5E4',
+                    'discord': '#5865F2',
+                    'custom': themeManager.getCurrentTheme() === 'dark' ? '#818cf8' : '#6366f1'
+                };
+                
+                return colorMap[link.type] || (themeManager.getCurrentTheme() === 'dark' ? '#818cf8' : '#6366f1');
+            }
+            
+            // Coba deteksi dari URL
+            const url = link.url.toLowerCase();
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return '#FF0000';
+            } else if (url.includes('instagram.com')) {
+                return '#E4405F';
+            } else if (url.includes('facebook.com')) {
+                return '#1877F2';
+            } else if (url.includes('twitter.com')) {
+                return '#1DA1F2';
+            } else if (url.includes('linkedin.com')) {
+                return '#0A66C2';
+            } else if (url.includes('github.com')) {
+                return '#333333';
+            } else if (url.includes('tiktok.com')) {
+                return '#000000';
+            } else if (url.includes('whatsapp.com')) {
+                return '#25D366';
+            } else if (url.includes('telegram.me') || url.includes('t.me')) {
+                return '#26A5E4';
+            } else if (url.includes('discord.com') || url.includes('discord.gg')) {
+                return '#5865F2';
+            } else if (url.includes('shopee.co') || url.includes('tokopedia.com') || url.includes('bukalapak.com')) {
+                return '#FF6B35';
+            }
+            
+            // Default color
+            return themeManager.getCurrentTheme() === 'dark' ? '#818cf8' : '#6366f1';
+        }
+
+        // Fungsi untuk memuat data profil dengan real-time
+        async function setupRealtimeProfile() {
+            try {
+                const profileRef = doc(db, 'profile', 'main');
+                
+                // Setup real-time listener untuk profil
+                const unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        
+                        // Update UI
+                        document.getElementById('profileName').textContent = data.name || 'Nama Pengguna';
+                        document.getElementById('profileBio').textContent = data.bio || 'Deskripsi singkat tentang diri atau bisnis Anda. Semua link penting ada di bawah ini!';
+                        
+                        if (data.avatarUrl) {
+                            document.getElementById('profileAvatar').src = data.avatarUrl;
+                        }
+                        
+                        loadSocialLinks(data.socialLinks || []);
+                        
+                        // Update CTA button jika ada
+                        if (data.ctaButton && data.ctaButton.enabled) {
+                            const ctaBtn = document.getElementById('ctaButton');
+                            ctaBtn.style.display = 'block';
+                            ctaBtn.href = data.ctaButton.url || '#';
+                            ctaBtn.innerHTML = `<i class="fas ${data.ctaButton.icon || 'fa-bolt'}" style="margin-right: 8px;"></i>${data.ctaButton.text || 'Hubungi Saya'}`;
+                        }
+                        
+                        // Deteksi perubahan dan tampilkan notifikasi
+                        if (!profileInitialLoad && lastProfileData) {
+                            const changes = detectProfileChanges(lastProfileData, data);
+                            if (changes.length > 0) {
+                                showRealtimeNotification(`Profil diperbarui: ${changes.join(', ')}`, 'success');
+                                // Animasi pada kartu profil
+                                document.getElementById('profileCard').style.animation = 'pulseGlow 0.5s';
+                                setTimeout(() => {
+                                    document.getElementById('profileCard').style.animation = '';
+                                }, 500);
+                            }
+                        }
+                        
+                        lastProfileData = data;
+                        profileInitialLoad = false;
+                    }
+                }, (error) => {
+                    console.error("Error real-time profile:", error);
+                    showRealtimeNotification("Gagal memuat data profil", "error");
+                });
+                
+                return unsubscribeProfile;
+            } catch (error) {
+                console.error("Error setting up real-time profile:", error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk mendeteksi perubahan pada profil
+        function detectProfileChanges(oldData, newData) {
+            const changes = [];
+            
+            if (oldData.name !== newData.name) changes.push('Nama');
+            if (oldData.bio !== newData.bio) changes.push('Bio');
+            if (oldData.avatarUrl !== newData.avatarUrl) changes.push('Foto Profil');
+            
+            // Deteksi perubahan social links
+            if (JSON.stringify(oldData.socialLinks || []) !== JSON.stringify(newData.socialLinks || [])) {
+                changes.push('Media Sosial');
+            }
+            
+            return changes;
+        }
+
+        // Fungsi untuk memuat link sosial
+        function loadSocialLinks(socialLinks) {
+            const container = document.getElementById('socialIcons');
+            container.innerHTML = '';
+            
+            const icons = {
+                'instagram': 'fab fa-instagram',
+                'facebook': 'fab fa-facebook-f',
+                'twitter': 'fab fa-twitter',
+                'linkedin': 'fab fa-linkedin-in',
+                'youtube': 'fab fa-youtube',
+                'github': 'fab fa-github',
+                'tiktok': 'fab fa-tiktok',
+                'whatsapp': 'fab fa-whatsapp',
+                'telegram': 'fab fa-telegram',
+                'discord': 'fab fa-discord'
+            };
+            
+            socialLinks.forEach(social => {
+                if (social.url && social.platform) {
+                    const iconClass = icons[social.platform] || 'fas fa-link';
+                    const a = document.createElement('a');
+                    a.href = social.url;
+                    a.className = 'social-icon';
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.innerHTML = `<i class="${iconClass}"></i>`;
+                    container.appendChild(a);
+                }
+            });
+        }
+
+        // Fungsi untuk memuat semua link dengan real-time
+        async function setupRealtimeLinks() {
+            try {
+                const linksRef = collection(db, 'links');
+                const q = query(linksRef, orderBy('order', 'asc'));
+                
+                // Setup real-time listener untuk link
+                const unsubscribeLinks = onSnapshot(q, (querySnapshot) => {
+                    const container = document.getElementById('linksContainer');
+                    
+                    if (querySnapshot.empty) {
+                        container.innerHTML = '<div class="loading"><div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Belum ada link yang ditambahkan.</span></div>';
+                        lastLinksData = [];
+                        return;
+                    }
+                    
+                    // Kumpulkan data link baru
+                    const newLinksData = [];
+                    querySnapshot.forEach((doc) => {
+                        newLinksData.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    // Deteksi perubahan
+                    let hasChanges = false;
+                    if (!linksInitialLoad && lastLinksData) {
+                        const oldCount = lastLinksData.length;
+                        const newCount = newLinksData.length;
+                        
+                        if (oldCount !== newCount) {
+                            hasChanges = true;
+                        } else {
+                            // Bandingkan setiap link
+                            for (let i = 0; i < newLinksData.length; i++) {
+                                const newLink = newLinksData[i];
+                                const oldLink = lastLinksData.find(l => l.id === newLink.id);
+                                
+                                if (!oldLink || JSON.stringify(oldLink) !== JSON.stringify(newLink)) {
+                                    hasChanges = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Render link
+                    renderLinks(querySnapshot);
+                    
+                    // Tampilkan notifikasi jika ada perubahan
+                    if (hasChanges && !linksInitialLoad) {
+                        showRealtimeNotification('Daftar link diperbarui', 'success');
+                    }
+                    
+                    lastLinksData = newLinksData;
+                    linksInitialLoad = false;
+                    
+                }, (error) => {
+                    console.error("Error real-time links:", error);
+                    showRealtimeNotification("Gagal memuat data link", "error");
+                });
+                
+                return unsubscribeLinks;
+            } catch (error) {
+                console.error("Error setting up real-time links:", error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk merender link
+        function renderLinks(querySnapshot) {
+            const container = document.getElementById('linksContainer');
+            container.innerHTML = '';
+            
+            querySnapshot.forEach((doc, index) => {
+                const link = doc.data();
+                const linkElement = document.createElement('a');
+                linkElement.href = link.url;
+                linkElement.className = 'link-item';
+                linkElement.target = '_blank';
+                linkElement.rel = 'noopener noreferrer';
+                linkElement.style.animationDelay = `${index * 0.05}s`;
+                
+                // Dapatkan icon dan warna berdasarkan link
+                const iconClass = getIconForLink(link);
+                const iconColor = getIconColorForLink(link);
+                
+                linkElement.innerHTML = `
+                    <div class="link-icon" style="background: linear-gradient(135deg, ${iconColor}, ${iconColor}aa)">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="link-content">
+                        <div class="link-title">${link.title}</div>
+                        <div class="link-description">${link.description || ''}</div>
+                    </div>
+                    <div class="link-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                `;
+                
+                container.appendChild(linkElement);
+            });
+        }
+
+        // Memuat data dan setup real-time saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize Theme Manager
+                themeManager = new ThemeManager();
+                
+                // Update status koneksi awal
+                updateConnectionStatus(navigator.onLine);
+                
+                // Setup real-time listeners
+                const unsubscribeProfile = await setupRealtimeProfile();
+                const unsubscribeLinks = await setupRealtimeLinks();
+                
+                // Tampilkan notifikasi sukses
+                setTimeout(() => {
+                    if (!profileInitialLoad && !linksInitialLoad) {
+                        showRealtimeNotification('Semua data tersinkronisasi real-time', 'success');
+                    }
+                }, 1000);
+                
+                // Cleanup listeners saat halaman ditutup
+                window.addEventListener('beforeunload', () => {
+                    if (unsubscribeProfile) unsubscribeProfile();
+                    if (unsubscribeLinks) unsubscribeLinks();
+                });
+                
+                // System theme detection
+                const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+                
+                // Listen for system theme changes
+                prefersDarkScheme.addEventListener('change', (e) => {
+                    if (!localStorage.getItem('linktree-theme')) { // Only auto-switch if user hasn't set preference
+                        const newTheme = e.matches ? 'dark' : 'light';
+                        themeManager.setTheme(newTheme);
+                    }
+                });
+                
+            } catch (error) {
+                console.error("Error initializing real-time:", error);
+                showRealtimeNotification("Gagal menyambungkan ke database", "error");
+            }
+        });
+    </script>
+</body>
+</html>
